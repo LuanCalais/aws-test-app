@@ -1,0 +1,9 @@
+node_modules
+npm-debug.log
+coverage
+.git
+.gitignore
+.gitlab-ci.yml
+scripts/
+*.md
+.env*
