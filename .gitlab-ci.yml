@@ -2,6 +2,7 @@ image: node:20-alpine
 
 stages: 
   - test
+  - build
 
 run_tests:
   stage: test
