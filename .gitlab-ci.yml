@@ -1,0 +1,14 @@
+image: node:20-alpine
+
+variables:
+  DOCKER_DRIVER: overlay2
+  DOCKER_TLS_CERTDIR: "/certs"
+  IMAGE_TAG: $CI_COMMIT_SHORT_SHA
+  ECR_URL: $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com
+
+cache:
+  key:
+    files:
+      - package-lock.json
+  paths:
+    - node_modules/
