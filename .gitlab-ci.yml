@@ -1,14 +1,21 @@
 image: node:20-alpine
 
-variables:
-  DOCKER_DRIVER: overlay2
-  DOCKER_TLS_CERTDIR: "/certs"
-  IMAGE_TAG: $CI_COMMIT_SHORT_SHA
-  ECR_URL: $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com
+stages: 
+  - test
 
-cache:
-  key:
-    files:
-      - package-lock.json
-  paths:
-    - node_modules/
+run_tests:
+  stage: test
+  script:
+    - npm ci
+    - npm test -- --coverage --ci
+  coverage: '/Lines\s*:\s*(\d+\.?\d*)%/'
+  artifacts:
+    when: always
+    reports:
+      junit: test-results.xml
+    paths:
+      - coverage/
+    expire_in: 7 days
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
