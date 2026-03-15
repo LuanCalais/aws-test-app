@@ -1,0 +1,22 @@
+image: node:20-alpine
+
+stages: 
+  - test
+  - build
+
+run_tests:
+  stage: test
+  script:
+    - npm ci
+    - npm test -- --coverage --ci
+  coverage: '/Lines\s*:\s*(\d+\.?\d*)%/'
+  artifacts:
+    when: always
+    reports:
+      junit: test-results.xml
+    paths:
+      - coverage/
+    expire_in: 7 days
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH

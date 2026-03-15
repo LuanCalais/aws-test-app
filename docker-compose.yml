@@ -1,0 +1,27 @@
+version: '3.9'
+
+services:
+  app:
+    build:
+      context: .
+      target: runner
+    ports:
+      - "3000:3000"
+    environment:
+      - APP_ENV=local
+      - APP_VERSION=dev
+      - PORT=3000
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3 
+
+  shell:
+   profiles: ["tools"]
+   image: node:20-alpine
+   working_dir: /app
+   volumes:
+      - .:/app
+   command: sh
