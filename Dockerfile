@@ -19,7 +19,7 @@ RUN npm ci
 COPY src/ ./src/
 COPY public/ ./public/
 
-RUN npm test -- --passWithNoTests
+RUN npm test -- --passWithNoTests --forceExit
 
 # ──────────────────────────────────────────────────────────────────
 # STAGE 3 — runner (imagem final, minimalista)
