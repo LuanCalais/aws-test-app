@@ -81,3 +81,21 @@ push_to_registry:
     expire_in: 1 hour
   rules:
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+
+test_dockerfile:
+  stage: test
+  image: docker:24
+  services:
+    - docker:24-dind
+  script:
+    - docker build -t test-image:$IMAGE_TAG .
+    - docker run -d -p 3000:3000 --name test-container test-image:$IMAGE_TAG
+    - sleep 5
+    - docker logs test-container
+    - docker stop test-container
+    - docker rm test-container
+    - echo "✅ Dockerfile testado com sucesso!"
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+  allow_failure: true
