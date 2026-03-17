@@ -28,13 +28,17 @@ build_image:
     - docker:24-dind
   before_script:
     - docker info
+    - echo "Construindo imagem para teste local"
   script:
     - |
       docker build \
         --build-arg APP_VERSION=$IMAGE_TAG \
-        -t $ECR_URL/$ECR_REPO_NAME:$IMAGE_TAG \
-        -t $ECR_URL/$ECR_REPO_NAME:latest \
+        -t meu-app:$IMAGE_TAG \
+        -t meu-app:latest \
         .
+    - docker save meu-app:$IMAGE_TAG | gzip > image.tar.gz
+    - echo "✅ Imagem construída com sucesso!"
+    - echo "📦 Arquivo image.tar.gz gerado (disponível como artefato)"
   artifacts:
     paths:
       - image.tar.gz
