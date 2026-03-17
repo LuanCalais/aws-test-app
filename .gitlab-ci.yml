@@ -16,6 +16,7 @@ cache:
 stages:
   - test
   - build
+  - push
 
 run_tests:
   stage: test
@@ -55,6 +56,28 @@ build_image:
   artifacts:
     paths:
       - image.tar.gz
+    expire_in: 1 hour
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+
+push_to_registry:
+  stage: push
+  image: docker:24
+  services:
+    - docker:24-dind
+  before_script:
+    - docker info
+    - docker load < image.tar.gz
+    - echo "🔑 Fazendo login no registry do GitLab..."
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+  script:
+    - docker push $REGISTRY_URL:$IMAGE_TAG
+    - docker push $REGISTRY_URL:latest
+    - echo "$REGISTRY_URL:$IMAGE_TAG" > image_url.txt
+    - echo "✅ Imagem publicada no registry do GitLab!" $REGISTRY_URL:$IMAGE_TAG
+  artifacts:
+    paths:
+      - image_url.txt
     expire_in: 1 hour
   rules:
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
