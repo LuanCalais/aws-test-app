@@ -26,19 +26,24 @@ build_image:
   image: docker:24
   services:
     - docker:24-dind
+  variables:
+    IMAGE_TAG: $CI_COMMIT_SHORT_SHA
+    LOCAL_IMAGE: $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA  
   before_script:
     - docker info
-    - echo "Construindo imagem para teste local"
+    - echo "🔑 Fazendo login no registry do GitLab..."
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
   script:
     - |
       docker build \
         --build-arg APP_VERSION=$IMAGE_TAG \
-        -t meu-app:$IMAGE_TAG \
-        -t meu-app:latest \
+        -t $LOCAL_IMAGE \
+        -t $CI_REGISTRY_IMAGE:latest \
         .
-    - docker save meu-app:$IMAGE_TAG | gzip > image.tar.gz
-    - echo "✅ Imagem construída com sucesso!"
-    - echo "📦 Arquivo image.tar.gz gerado (disponível como artefato)"
+    - docker push $LOCAL_IMAGE
+    - docker push $CI_REGISTRY_IMAGE:latest
+    - docker save $LOCAL_IMAGE | gzip > image.tar.gz
+    - echo "✅ Imagem publicada no registry do GitLab!"
   artifacts:
     paths:
       - image.tar.gz
