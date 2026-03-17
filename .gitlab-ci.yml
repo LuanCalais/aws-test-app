@@ -51,7 +51,7 @@ build_image:
         -t $REGISTRY_URL:$IMAGE_TAG \
         -t $REGISTRY_URL:latest \
         .
-    - docker save $REGISTRY_URL:$IMAGE_TAG | gzip > image.tar.gz
+    - docker save $REGISTRY_URL:$IMAGE_TAG $REGISTRY_URL:latest | gzip > image.tar.gz
     - echo "✅ Imagem publicada no registry do GitLab!"
   artifacts:
     paths:
