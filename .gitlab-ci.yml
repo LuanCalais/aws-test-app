@@ -8,7 +8,7 @@ run_tests:
   stage: test
   script:
     - npm ci
-    - npm test -- --coverage --ci
+    - npm test -- --coverage --ci --forceExit
   coverage: '/Lines\s*:\s*(\d+\.?\d*)%/'
   artifacts:
     when: always
@@ -20,3 +20,5 @@ run_tests:
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+
+    
