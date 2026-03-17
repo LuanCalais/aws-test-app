@@ -1,5 +1,18 @@
 image: node:20-alpine
 
+variables:
+  DOCKER_DRIVER: overlay2
+  DOCKER_TLS_CERTDIR: "/certs"
+  IMAGE_TAG: $CI_COMMIT_SHORT_SHA
+  REGISTRY_URL: $CI_REGISTRY_IMAGE
+
+cache:
+  key:
+    files:
+      - package-lock.json
+  paths:
+    - node_modules/
+
 stages:
   - test
   - build
@@ -26,9 +39,6 @@ build_image:
   image: docker:24
   services:
     - docker:24-dind
-  variables:
-    IMAGE_TAG: $CI_COMMIT_SHORT_SHA
-    LOCAL_IMAGE: $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA
   before_script:
     - docker info
     - echo "🔑 Fazendo login no registry do GitLab..."
@@ -37,12 +47,10 @@ build_image:
     - |
       docker build \
         --build-arg APP_VERSION=$IMAGE_TAG \
-        -t $LOCAL_IMAGE \
-        -t $CI_REGISTRY_IMAGE:latest \
+        -t $REGISTRY_URL:$IMAGE_TAG \
+        -t $REGISTRY_URL:latest \
         .
-    - docker push $LOCAL_IMAGE
-    - docker push $CI_REGISTRY_IMAGE:latest
-    - docker save $LOCAL_IMAGE | gzip > image.tar.gz
+    - docker save $REGISTRY_URL:$IMAGE_TAG | gzip > image.tar.gz
     - echo "✅ Imagem publicada no registry do GitLab!"
   artifacts:
     paths:
